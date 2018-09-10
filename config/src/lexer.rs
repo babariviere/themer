@@ -42,6 +42,7 @@ impl<'a> Lexer<'a> {
 
     fn lex_path(&mut self) -> Option<Token> {
         let mut path = String::new();
+        // TODO: allow for escaped whitespace
         while self.peek().map(|c| !c.is_whitespace()).unwrap_or(false) {
             path.push(self.eat().unwrap());
         }
@@ -97,6 +98,14 @@ impl<'a> Lexer<'a> {
     fn lex_simple(&mut self, token: Token) -> Option<Token> {
         self.eat()?;
         Some(token)
+    }
+}
+
+impl<'a> Iterator for Lexer<'a> {
+    type Item = Token;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next_token()
     }
 }
 
