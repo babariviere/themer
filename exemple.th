@@ -1,0 +1,42 @@
+custom {
+	name value
+}
+
+colors {
+	cursor black
+	cursor_foreground white
+	foreground white
+	background red
+
+	highlight red
+
+	normal {
+		black #000000
+		red #ff0000
+		green #00ff00
+		yellow #000000
+		blue #0000ff
+		magenta #ffffff
+		cyan #ffffff
+		white #ffffff
+	}
+	bright {
+		black #000000
+		red #ff0000
+		green #00ff00
+		yellow #000000
+		blue #0000ff
+		magenta #ffffff
+		cyan #ffffff
+		white #ffffff
+	}
+}
+
+desktop {
+	method feh
+	background /path/to/image
+}
+
+vim {
+	background #ffffff
+}

@@ -1,0 +1,9 @@
+[workspace]
+members = ["config"]
+
+[package]
+name = "themer"
+version = "0.1.0"
+authors = ["babariviere <babariviere@protonmail.com>"]
+
+[dependencies]
