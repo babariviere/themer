@@ -2,7 +2,12 @@ pub mod lexer;
 pub mod parser;
 pub mod token;
 
+use lexer::Lexer;
+use parser::Parser;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::{Read, Result};
+use std::path::Path;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Value {
@@ -40,4 +45,17 @@ impl Config {
     pub fn sections(&self) -> &HashMap<String, Section> {
         &self.sections
     }
+}
+
+pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Option<Config>> {
+    let mut file = File::open(path.as_ref())?;
+    read_stream(&mut file)
+}
+
+pub fn read_stream<R: Read>(reader: &mut R) -> Result<Option<Config>> {
+    let mut buf = String::new();
+    reader.read_to_string(&mut buf)?;
+    let mut lexer = Lexer::new(&buf);
+    let mut parser = Parser::new(&mut lexer);
+    Ok(parser.parse())
 }
