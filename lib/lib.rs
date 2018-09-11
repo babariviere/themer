@@ -66,6 +66,7 @@ impl Colors {
             "bright_magenta" => self.bright_magenta.as_ref(),
             "bright_cyan" => self.bright_cyan.as_ref(),
             "bright_white" => self.bright_white.as_ref(),
+            _ => None,
         }
     }
 }
@@ -115,7 +116,7 @@ pub(crate) fn resolve(name: &str) -> Option<Value> {
 
 pub(crate) fn get_color(name: &str) -> Option<Color> {
     unsafe {
-        if let Some(color) = COLORS {
+        if let Some(ref color) = COLORS {
             return color.get(name).cloned();
         }
     }

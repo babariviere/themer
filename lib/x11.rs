@@ -73,7 +73,7 @@ impl Theme for X11 {
     }
 
     fn generated(&self) -> Result<String, Error> {
-        let _program = self.program.unwrap_or_else(|| "*".into());
+        let _program = self.program.as_ref().map(|s| &**s).unwrap_or("*");
         Ok(String::new())
     }
 
