@@ -26,7 +26,7 @@ impl<'a> Lexer<'a> {
             self.eat();
         }
         match self.peek()? {
-            '~' | '/' | '.' => self.lex_path(),
+            c if is_start_of_path(c) => self.lex_path(),
             c if c.is_alphabetic() => self.lex_ident(),
             c if c.is_numeric() => self.lex_number(),
             '"' => self.lex_str(),
@@ -43,8 +43,16 @@ impl<'a> Lexer<'a> {
     fn lex_path(&mut self) -> Option<Token> {
         let mut path = String::new();
         // TODO: allow for escaped whitespace
-        while self.peek().map(|c| !c.is_whitespace()).unwrap_or(false) {
-            path.push(self.eat().unwrap());
+
+        while let Some(c) = self.eat() {
+            if c.is_whitespace() {
+                break;
+            }
+            if c == '\\' && self.peek() == Some(' ') {
+                path.push(self.eat().unwrap());
+            } else {
+                path.push(c);
+            }
         }
         Some(Token::Path(path))
     }
@@ -92,6 +100,11 @@ impl<'a> Lexer<'a> {
             }
             s.push(c);
         }
+        if let Some(fc) = s.chars().next() {
+            if is_start_of_path(fc) {
+                return Some(Token::Path(s));
+            }
+        }
         Some(Token::Str(s))
     }
 
@@ -111,6 +124,10 @@ impl<'a> Iterator for Lexer<'a> {
 
 fn is_hex(c: char) -> bool {
     c.is_numeric() || 'a' <= c && c <= 'f' || 'A' <= c && c <= 'F'
+}
+
+fn is_start_of_path(c: char) -> bool {
+    c == '~' || c == '/' || c == '.'
 }
 
 #[cfg(test)]
@@ -149,6 +166,7 @@ mod unit_tests {
             desktop {
                 method \"feh\"
                 file /path/to/background
+                path \"/another/path\"
             }
             ",
             &[
@@ -165,6 +183,8 @@ mod unit_tests {
                 Token::Str("feh".into()),
                 Token::Ident("file".into()),
                 Token::Path("/path/to/background".into()),
+                Token::Ident("path".into()),
+                Token::Path("/another/path".into()),
                 Token::RBrace,
             ],
         );

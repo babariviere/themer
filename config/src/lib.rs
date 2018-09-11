@@ -4,16 +4,17 @@ pub mod token;
 
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Value {
     Hex(u32),
+    Number(u8),
     RGB(u8, u8, u8),
     Str(String),
     Path(String),
     Section(Section),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Section(HashMap<String, Value>);
 
 impl Section {
@@ -26,7 +27,7 @@ impl Section {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Config {
     sections: HashMap<String, Section>,
 }
