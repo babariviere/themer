@@ -9,7 +9,7 @@ use std::fs::File;
 use std::io::{Read, Result};
 use std::path::Path;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Value {
     Hex(u32),
     Number(u8),
@@ -19,7 +19,7 @@ pub enum Value {
     Section(Section),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Section(HashMap<String, Value>);
 
 impl Section {
@@ -32,7 +32,7 @@ impl Section {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Config {
     sections: HashMap<String, Section>,
 }

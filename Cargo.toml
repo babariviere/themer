@@ -6,4 +6,12 @@ name = "themer"
 version = "0.1.0"
 authors = ["babariviere <babariviere@protonmail.com>"]
 
+[lib]
+name = "themer"
+path = "lib/lib.rs"
+
 [dependencies]
+failure = "0.1"
+failure_derive = "0.1"
+structopt = "0.2"
+themer-config = {path = "./config"}
