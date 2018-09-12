@@ -45,6 +45,10 @@ impl Config {
     pub fn sections(&self) -> &HashMap<String, Section> {
         &self.sections
     }
+
+    pub fn sections_mut(&mut self) -> &mut HashMap<String, Section> {
+        &mut self.sections
+    }
 }
 
 pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Option<Config>> {

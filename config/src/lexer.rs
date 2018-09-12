@@ -59,7 +59,11 @@ impl<'a> Lexer<'a> {
 
     fn lex_ident(&mut self) -> Option<Token> {
         let mut ident = String::new();
-        while self.peek().map(|c| c.is_alphabetic()).unwrap_or(false) {
+        while self
+            .peek()
+            .map(|c| c.is_alphanumeric() || c == '_')
+            .unwrap_or(false)
+        {
             ident.push(self.eat().unwrap());
         }
         Some(Token::Ident(ident))

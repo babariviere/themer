@@ -1,5 +1,6 @@
-use super::{Color, Error, Theme};
+use super::{Color, Error, Getter, State, Theme};
 use config::Section;
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 const AVAILABLE_FIELDS: &[&str] = &[
@@ -26,40 +27,38 @@ const AVAILABLE_FIELDS: &[&str] = &[
     "cursor",
 ];
 
+const COLOR_MAP: &[(&str, &str)] = &[
+    ("black", "color0"),
+    ("red", "color1"),
+    ("green", "color2"),
+    ("yellow", "color3"),
+    ("blue", "color4"),
+    ("magenta", "color5"),
+    ("cyan", "color6"),
+    ("white", "color7"),
+    ("bright_black", "color8"),
+    ("bright_red", "color9"),
+    ("bright_green", "color10"),
+    ("bright_yellow", "color11"),
+    ("bright_blue", "color12"),
+    ("bright_magenta", "color13"),
+    ("bright_cyan", "color14"),
+    ("bright_white", "color15"),
+    ("foreground", "foreground"),
+    ("background", "background"),
+    ("cursor", "cursorColor"),
+];
+
 #[derive(Default, Debug)]
 pub struct X11 {
     program: Option<String>,
     output: Option<PathBuf>,
-    black: Option<Color>,
-    red: Option<Color>,
-    green: Option<Color>,
-    yellow: Option<Color>,
-    blue: Option<Color>,
-    magenta: Option<Color>,
-    cyan: Option<Color>,
-    white: Option<Color>,
-    bright_black: Option<Color>,
-    bright_red: Option<Color>,
-    bright_green: Option<Color>,
-    bright_yellow: Option<Color>,
-    bright_blue: Option<Color>,
-    bright_magenta: Option<Color>,
-    bright_cyan: Option<Color>,
-    bright_white: Option<Color>,
-    foreground: Option<Color>,
-    background: Option<Color>,
-    cursor: Option<Color>,
+    colors: HashMap<String, Color>,
 }
 
 impl X11 {
     pub fn new() -> Self {
         X11::default()
-    }
-
-    pub fn program(name: String) -> Self {
-        let mut x11 = X11::default();
-        x11.program = Some(name);
-        x11
     }
 }
 
@@ -68,20 +67,35 @@ impl Theme for X11 {
         AVAILABLE_FIELDS
     }
 
-    fn create(&mut self, _section: &Section) -> Result<(), Error> {
+    fn create(&mut self, state: &State, section: &Section) -> Result<(), Error> {
+        self.program = section.get_str(state, "program").to_option();
+        self.output = section.get_path(state, "output").to_option();
+        for (color, _) in COLOR_MAP {
+            if let Some(c) = section.get_color(state, color).to_option() {
+                self.colors.insert(color.to_string(), c);
+            }
+        }
         Ok(())
     }
 
     fn generated(&self) -> Result<String, Error> {
-        let _program = self.program.as_ref().map(|s| &**s).unwrap_or("*");
-        Ok(String::new())
+        let program = self.program.as_ref().map(|s| &**s).unwrap_or("*");
+        let mut buf = Vec::new();
+        for (name, value) in &self.colors {
+            buf.push(format!(
+                "{}.{}: #{:02x}{:02x}{:02x}",
+                program, name, value.0, value.1, value.2
+            ));
+        }
+        Ok(buf.join("\n"))
     }
 
     fn apply(&self) -> Result<(), Error> {
         Ok(())
     }
 
-    fn output(&self) -> Option<&PathBuf> {
+    fn output(&mut self) -> Option<&PathBuf> {
+        // TODO: replace output if none
         self.output.as_ref()
     }
 }
