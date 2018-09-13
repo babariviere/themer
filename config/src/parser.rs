@@ -1,6 +1,6 @@
 use super::{Config, Section, Value};
 use lexer::Lexer;
-use std::collections::HashMap;
+use map::Map;
 use std::iter::Peekable;
 use token::Token;
 
@@ -24,7 +24,7 @@ impl<'a> Parser<'a> {
     }
 
     pub fn parse(&mut self) -> Option<Config> {
-        let mut sections = HashMap::new();
+        let mut sections = Map::new();
         loop {
             let name = match self.peek() {
                 Some(Token::Ident(s)) => s,
@@ -40,7 +40,7 @@ impl<'a> Parser<'a> {
         if self.eat() != Some(Token::LBrace) {
             return None;
         }
-        let mut values = HashMap::new();
+        let mut values = Map::new();
         while self.peek() != Some(Token::RBrace) {
             let name = match self.eat()? {
                 Token::Ident(s) => s,

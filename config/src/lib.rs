@@ -1,10 +1,11 @@
 pub mod lexer;
+pub mod map;
 pub mod parser;
 pub mod token;
 
 use lexer::Lexer;
+use map::Map;
 use parser::Parser;
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Result};
 use std::path::Path;
@@ -20,34 +21,30 @@ pub enum Value {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Section(HashMap<String, Value>);
+pub struct Section(Map<Value>);
 
 impl Section {
-    pub fn new(values: HashMap<String, Value>) -> Self {
+    pub fn new(values: Map<Value>) -> Self {
         Section(values)
     }
 
-    pub fn values(&self) -> &HashMap<String, Value> {
+    pub fn values(&self) -> &Map<Value> {
         &self.0
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Config {
-    sections: HashMap<String, Section>,
+    sections: Map<Section>,
 }
 
 impl Config {
-    pub fn new(sections: HashMap<String, Section>) -> Self {
+    pub fn new(sections: Map<Section>) -> Self {
         Config { sections }
     }
 
-    pub fn sections(&self) -> &HashMap<String, Section> {
+    pub fn sections(&self) -> &Map<Section> {
         &self.sections
-    }
-
-    pub fn sections_mut(&mut self) -> &mut HashMap<String, Section> {
-        &mut self.sections
     }
 }
 

@@ -5,8 +5,8 @@ extern crate themer_config as config;
 
 mod x11;
 
-use config::{Config, Section, Value};
-use std::collections::{HashMap, VecDeque};
+use config::{map::Map, Config, Section, Value};
+use std::collections::VecDeque;
 use std::path::PathBuf;
 use x11::X11;
 
@@ -49,8 +49,8 @@ pub struct Color(u8, u8, u8);
 
 #[derive(Debug)]
 pub struct State {
-    pub colors: HashMap<String, Color>,
-    pub defined: HashMap<String, Value>,
+    pub colors: Map<Color>,
+    pub defined: Map<Value>,
 }
 
 #[derive(Debug, Fail)]
@@ -170,21 +170,21 @@ pub fn process_section(
         }
         "colors" => {
             let mut to_resolve = VecDeque::new();
-            for (name, value) in section.values() {
-                if let Value::Section(s) = value {
-                    for (sname, svalue) in s.values() {
-                        let sname = format!("{}_{}", name, sname);
-                        if let Ok(color) = expect_color(svalue) {
+            for entry in section.values() {
+                if let Value::Section(ref s) = entry.value {
+                    for sentry in s.values() {
+                        let sname = format!("{}_{}", entry.name, sentry.name);
+                        if let Ok(color) = expect_color(&sentry.value) {
                             state.colors.insert(sname, color);
-                        } else if let Value::Str(s) = svalue {
+                        } else if let Value::Str(ref s) = sentry.value {
                             to_resolve.push_back((sname.to_string(), s));
                         }
                         // TODO: else for error
                     }
-                } else if let Ok(color) = expect_color(value) {
-                    state.colors.insert(name.to_string(), color);
-                } else if let Value::Str(s) = value {
-                    to_resolve.push_back((name.to_string(), s));
+                } else if let Ok(color) = expect_color(&entry.value) {
+                    state.colors.insert(entry.name.to_string(), color);
+                } else if let Value::Str(ref s) = entry.value {
+                    to_resolve.push_back((entry.name.to_string(), s));
                 }
             }
             let mut has_resolved = true;
@@ -212,8 +212,8 @@ pub fn process_section(
 pub fn process_config(config: &mut Config) -> Result<Vec<Box<Theme>>, Error> {
     let mut result = Vec::new();
     let mut state = State {
-        colors: HashMap::new(),
-        defined: HashMap::new(),
+        colors: Map::new(),
+        defined: Map::new(),
     };
     if let Some(defined) = config.sections().get("defined") {
         let _ = process_section(&mut state, "defined", &defined);
@@ -221,11 +221,11 @@ pub fn process_config(config: &mut Config) -> Result<Vec<Box<Theme>>, Error> {
     if let Some(colors) = config.sections().get("colors") {
         let _ = process_section(&mut state, "colors", &colors);
     }
-    for (name, section) in config.sections() {
-        if name == "colors" || name == "defined" {
+    for entry in config.sections() {
+        if entry.name == "colors" || entry.name == "defined" {
             continue;
         }
-        match process_section(&mut state, name, section) {
+        match process_section(&mut state, &entry.name, &entry.value) {
             Ok(Some(gen)) => {
                 result.push(gen);
             }

@@ -1,6 +1,6 @@
 use super::{Color, Error, Getter, State, Theme};
+use config::map::Map;
 use config::Section;
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 const AVAILABLE_FIELDS: &[&str] = &[
@@ -53,7 +53,7 @@ const COLOR_MAP: &[(&str, &str)] = &[
 pub struct X11 {
     program: Option<String>,
     output: Option<PathBuf>,
-    colors: HashMap<String, Color>,
+    colors: Map<Color>,
 }
 
 impl X11 {
@@ -85,13 +85,14 @@ impl Theme for X11 {
     fn generated(&self) -> Result<String, Error> {
         let program = self.program.as_ref().map(|s| &**s).unwrap_or("*");
         let mut buf = Vec::new();
-        for (name, value) in &self.colors {
+        for entry in &self.colors {
+            let name = &entry.name;
+            let value = &entry.value;
             buf.push(format!(
                 "{}.{}: #{:02x}{:02x}{:02x}",
                 program, name, value.0, value.1, value.2
             ));
         }
-        buf.sort();
         Ok(buf.join("\n"))
     }
 
