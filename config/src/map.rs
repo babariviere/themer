@@ -1,3 +1,6 @@
+use std::iter;
+use std::slice;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Entry<T> {
     pub name: String,
@@ -42,9 +45,21 @@ impl<T> Default for Map<T> {
 impl<'a, T> IntoIterator for &'a Map<T> {
     type Item = &'a Entry<T>;
 
-    type IntoIter = ::std::slice::Iter<'a, Entry<T>>;
+    type IntoIter = slice::Iter<'a, Entry<T>>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.iter()
+    }
+}
+
+impl<T> iter::FromIterator<(String, T)> for Map<T> {
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (String, T)>,
+    {
+        Map(Vec::from_iter(
+            iter.into_iter()
+                .map(|(name, value)| Entry::new(name, value)),
+        ))
     }
 }

@@ -207,7 +207,7 @@ mod unit_tests {
                             .collect(),
                         ),
                     ),
-                    ("empty".into(), Section::new(HashMap::new())),
+                    ("empty".into(), Section::new(Map::new())),
                 ].into_iter()
                 .collect(),
             ),
