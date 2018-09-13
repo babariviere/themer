@@ -70,9 +70,13 @@ impl Theme for X11 {
     fn create(&mut self, state: &State, section: &Section) -> Result<(), Error> {
         self.program = section.get_str(state, "program").to_option();
         self.output = section.get_path(state, "output").to_option();
-        for (color, _) in COLOR_MAP {
-            if let Some(c) = section.get_color(state, color).to_option() {
-                self.colors.insert(color.to_string(), c);
+        for (color, newname) in COLOR_MAP {
+            if let Some(c) = section
+                .get_color(state, color)
+                .to_option()
+                .or(section.get_color(state, newname).to_option())
+            {
+                self.colors.insert(newname.to_string(), c);
             }
         }
         Ok(())
@@ -87,6 +91,7 @@ impl Theme for X11 {
                 program, name, value.0, value.1, value.2
             ));
         }
+        buf.sort();
         Ok(buf.join("\n"))
     }
 

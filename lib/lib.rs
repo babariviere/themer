@@ -215,13 +215,16 @@ pub fn process_config(config: &mut Config) -> Result<Vec<Box<Theme>>, Error> {
         colors: HashMap::new(),
         defined: HashMap::new(),
     };
-    if let Some(defined) = config.sections_mut().remove("defined") {
-        process_section(&mut state, "defined", &defined);
+    if let Some(defined) = config.sections().get("defined") {
+        let _ = process_section(&mut state, "defined", &defined);
     }
-    if let Some(colors) = config.sections_mut().remove("colors") {
-        process_section(&mut state, "colors", &colors);
+    if let Some(colors) = config.sections().get("colors") {
+        let _ = process_section(&mut state, "colors", &colors);
     }
     for (name, section) in config.sections() {
+        if name == "colors" || name == "defined" {
+            continue;
+        }
         match process_section(&mut state, name, section) {
             Ok(Some(gen)) => {
                 result.push(gen);

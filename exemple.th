@@ -32,7 +32,8 @@ colors {
 }
 
 x11 {
-	program test
+	color0 #123456
+	cursor black
 }
 
 desktop {

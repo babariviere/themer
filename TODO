@@ -1,0 +1,2 @@
+- Level of definitions: local and global
+- Remove hashmap because we can't have duplicate names and shuffle input

@@ -35,7 +35,7 @@ fn main() {
         .config
         .unwrap_or(PathBuf::from(format!("{}/.config/themer/default.th", home)));
     let mut config = config::read_config(config).unwrap().unwrap();
-    let mut themes = match themer::process_config(&mut config) {
+    let themes = match themer::process_config(&mut config) {
         Ok(themes) => themes,
         Err(e) => {
             println!("{}", e);
