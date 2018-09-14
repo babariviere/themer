@@ -1,0 +1,28 @@
+colors {
+	foreground   #d0cec3
+	background   #191d26
+	cursor       #d0cec3
+
+	black		#191d26
+	red			#ea5965
+	green		#ade46b
+	yellow		#fec254
+	blue		#2d91d0
+	magenta		#c9aeff
+	cyan		#86e2bf
+	white		#bbbbbb
+
+	bright {
+		black		#555555
+		red 		#ea5965
+		green	    #c1e436
+		yellow      #fed96d
+		blue	    #5555ff
+		magenta     #ff55ff
+		cyan	    #99ffda
+		white       #ffffff
+	}
+}
+
+x11 {}
+urxvt {}
