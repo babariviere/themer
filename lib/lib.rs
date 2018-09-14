@@ -3,6 +3,7 @@ extern crate failure;
 extern crate failure_derive;
 extern crate themer_config as config;
 
+mod template;
 mod x11;
 
 use config::{map::Map, Config, Section, Value};
