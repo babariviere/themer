@@ -55,10 +55,18 @@ pub struct State {
 
 #[derive(Debug, Fail)]
 pub enum Error {
-    #[fail(display = "expected color found {:?}", value)]
-    ExpectedColor { value: Value },
-    #[fail(display = "unknown section `{}`", section)]
-    UnknownSection { section: String },
+    #[fail(display = "expected color found {:?}", _0)]
+    ExpectedColor(Value),
+    #[fail(display = "unknown section `{}`", _0)]
+    UnknownSection(String),
+    #[fail(display = "io error: {}", _0)]
+    Io(#[cause] ::std::io::Error),
+}
+
+impl From<::std::io::Error> for Error {
+    fn from(err: ::std::io::Error) -> Self {
+        Error::Io(err)
+    }
 }
 
 // TODO: better name
@@ -147,7 +155,7 @@ fn expect_color(value: &Value) -> Result<Color, Error> {
             (h & 0x0000ff) as u8,
         )),
         Value::RGB(r, g, b) => Ok(Color(*r, *g, *b)),
-        v => Err(Error::ExpectedColor { value: v.clone() }),
+        v => Err(Error::ExpectedColor(v.clone())),
     }
 }
 
@@ -161,6 +169,11 @@ pub fn process_section(
     match name.to_lowercase().as_str() {
         "x11" | "xresources" => {
             let mut x11 = X11::new();
+            x11.create(state, section)?;
+            Ok(Some(Box::new(x11)))
+        }
+        "urxvt" => {
+            let mut x11 = X11::program(name.to_owned());
             x11.create(state, section)?;
             Ok(Some(Box::new(x11)))
         }
@@ -203,9 +216,7 @@ pub fn process_section(
             }
             Ok(None)
         }
-        _ => Err(Error::UnknownSection {
-            section: name.to_owned(),
-        }),
+        _ => Err(Error::UnknownSection(name.to_owned())),
     }
 }
 

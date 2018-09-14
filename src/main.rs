@@ -42,7 +42,12 @@ fn main() {
             return;
         }
     };
-    for theme in themes {
-        println!("{}", theme.generated().unwrap());
+    match themer.command {
+        Command::Apply => {
+            for theme in themes {
+                theme.apply().unwrap();
+            }
+        }
+        _c => unimplemented!(),
     }
 }

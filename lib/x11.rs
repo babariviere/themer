@@ -1,7 +1,10 @@
-use super::{Color, Error, Getter, State, Theme};
+use super::{Color, Error, GetResult, Getter, State, Theme};
 use config::map::Map;
 use config::Section;
+use std::fs::File;
+use std::io::Write;
 use std::path::PathBuf;
+use std::process::Command;
 
 const AVAILABLE_FIELDS: &[&str] = &[
     "program",
@@ -60,6 +63,12 @@ impl X11 {
     pub fn new() -> Self {
         X11::default()
     }
+
+    pub fn program(program: String) -> Self {
+        let mut x11 = X11::new();
+        x11.program = Some(program);
+        x11
+    }
 }
 
 impl Theme for X11 {
@@ -68,7 +77,9 @@ impl Theme for X11 {
     }
 
     fn create(&mut self, state: &State, section: &Section) -> Result<(), Error> {
-        self.program = section.get_str(state, "program").to_option();
+        if let GetResult::Ok(program) = section.get_str(state, "program") {
+            self.program = Some(program);
+        }
         self.output = section.get_path(state, "output").to_option();
         for (color, newname) in COLOR_MAP {
             if let Some(c) = section
@@ -97,11 +108,27 @@ impl Theme for X11 {
     }
 
     fn apply(&self) -> Result<(), Error> {
+        let generated = self.generated()?;
+        let path;
+        let mut f = match self.output {
+            Some(ref p) => {
+                path = p.display().to_string();
+                File::create(p)?
+            }
+            None => {
+                let program = self.program.as_ref().map(|s| &**s).unwrap_or("default");
+                let p = ::std::env::temp_dir().join(format!("themer-x11_{}", program));
+                path = p.display().to_string();
+                File::create(p)?
+            }
+        };
+        f.write_all(generated.as_bytes())?;
+        let command = Command::new("xrdb").arg("-merge").arg(&path).output()?;
+        println!("{:?}", command);
         Ok(())
     }
 
     fn output(&mut self) -> Option<&PathBuf> {
-        // TODO: replace output if none
         self.output.as_ref()
     }
 }

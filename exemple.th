@@ -36,6 +36,8 @@ x11 {
 	cursor black
 }
 
+urxvt {}
+
 desktop {
 	method feh
 	background /path/to/image
