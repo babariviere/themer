@@ -6,13 +6,19 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
+struct Generate {
+    #[structopt(name = "file", parse(from_os_str))]
+    file: PathBuf,
+}
+
+#[derive(StructOpt, Debug)]
 enum Command {
     /// Use specified theme
     #[structopt(name = "use")]
     Use,
     /// Generate a new theme
     #[structopt(name = "generate")]
-    Generate,
+    Generate(Generate),
     /// Apply theme (needed for Xresources or else
     #[structopt(name = "apply")]
     Apply,
@@ -47,6 +53,14 @@ fn main() {
             for theme in themes {
                 theme.apply().unwrap();
             }
+        }
+        Command::Generate(gen) => {
+            use std::io::Read;
+            let mut file = std::fs::File::open(gen.file).unwrap();
+            let mut buf = String::new();
+            file.read_to_string(&mut buf).unwrap();
+            let parsed = themer::template::Parser::new(&buf).parse().unwrap();
+            println!("{:#?}", parsed);
         }
         _c => unimplemented!(),
     }

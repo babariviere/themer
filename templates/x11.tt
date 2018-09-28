@@ -1,6 +1,7 @@
 ---
 name: x11,xresources
 output: ~/.xres/{theme_name}
+apply: xrdb -merge {output}
 ---
 
 *.color0: {black | color0}
