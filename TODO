@@ -1,3 +1,4 @@
 [ ] Level of definitions: local and global
 [x] Remove hashmap because we can't have duplicate names and shuffle input
-[ ] Template system for easy expansion
+[x] Template system for easy expansion
+[ ] Remove part if input does not exist

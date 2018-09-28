@@ -221,8 +221,7 @@ pub fn process_section(
     }
 }
 
-pub fn process_config(config: &mut Config) -> Result<Vec<Box<Theme>>, Error> {
-    let mut result = Vec::new();
+pub fn process_state(config: &Config) -> State {
     let mut state = State {
         colors: Map::new(),
         defined: Map::new(),
@@ -233,6 +232,12 @@ pub fn process_config(config: &mut Config) -> Result<Vec<Box<Theme>>, Error> {
     if let Some(colors) = config.sections().get("colors") {
         let _ = process_section(&mut state, "colors", &colors);
     }
+    state
+}
+
+pub fn process_config(config: &mut Config) -> Result<Vec<Box<Theme>>, Error> {
+    let mut result = Vec::new();
+    let mut state = process_state(config);
     for entry in config.sections() {
         if entry.name == "colors" || entry.name == "defined" {
             continue;

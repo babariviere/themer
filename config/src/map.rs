@@ -27,7 +27,7 @@ impl<T> Map<T> {
     }
 
     pub fn get(&self, name: &str) -> Option<&T> {
-        for ref entry in &self.0 {
+        for entry in &self.0 {
             if entry.name == name {
                 return Some(&entry.value);
             }
